@@ -27,6 +27,7 @@
 - `智能OnCallAgent-答辩演示.pptx`：可编辑答辩演示 PPT。
 - `智能OnCallAgent-技术论文.docx`：按研电赛技术论文格式要求整理的技术论文附件。
 - `智能OnCallAgent-门型展架.jpg`：80*180cm 门型展架 JPG，展示作品背景、创新点、技术路线、验证结果和同类方法对比。
+- `智能OnCallAgent-门型展架-可编辑版.pptx`：门型展架可编辑源文件，可在 PowerPoint 中修改文字、图片、表格后另存为 JPG。
 - `screenshots/`：项目运行截图。
 - `api-examples/`：可直接执行的接口测试脚本。
 
@@ -51,6 +52,7 @@
 - 答辩演示 PPT：`contest-deliverables/智能OnCallAgent-答辩演示.pptx`
 - 技术论文附件：`contest-deliverables/智能OnCallAgent-技术论文.docx`
 - 门型展架：`contest-deliverables/智能OnCallAgent-门型展架.jpg`
+- 门型展架可编辑源文件：`contest-deliverables/智能OnCallAgent-门型展架-可编辑版.pptx`
 - 演示视频脚本：`contest-deliverables/10-演示视频录制脚本.md`
 
 公开仓库中不包含真实 DashScope API Key、接口 Token、服务器私钥、个人学习资料、编译产物或运行数据。评审需要调用 `/chat` 时，可单独提供临时 `CONTEST_API_TOKEN`。
