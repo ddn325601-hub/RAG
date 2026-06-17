@@ -40,7 +40,23 @@ SuperBizAgent/
 └─ pom.xml
 ```
 
-## 快速启动
+## 云端演示入口
+
+当前项目已部署到阿里云 ECS，可通过公网地址访问：
+
+```text
+http://121.40.90.107/
+```
+
+评审或演示时建议优先使用云端入口，便于直接体验问答、引用来源和知识库管理能力。比赛统一问答接口为：
+
+```text
+POST http://121.40.90.107/chat
+```
+
+`/chat` 接口需要携带 `Authorization: Bearer <CONTEST_API_TOKEN>`，Token 不写入公开仓库，可在现场演示或提交系统要求时单独提供。
+
+## 本地快速启动
 
 ### 1. 设置模型 Key
 
@@ -90,12 +106,13 @@ Invoke-RestMethod "http://127.0.0.1:9900/api/rag/search?q=$q&topK=3"
 | `GET /api/knowledge/files` | 知识库文件列表 |
 | `GET /milvus/health` | Milvus 健康检查 |
 
-## 云端部署
+## 云端部署与验证
 
 部署说明见：
 
 - `deploy/README.md`
 - `contest-deliverables/08-云部署补充说明.md`
+- `contest-deliverables/09-最终提交清单.md`
 
 生产或公网演示时，请通过环境变量配置：
 

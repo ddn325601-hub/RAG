@@ -73,7 +73,7 @@
 <body>
   <main class="wrap">
     <h1>智能 OnCall Agent 验证摘要</h1>
-    <div class="sub">验证时间：2026-06-17；运行地址：http://127.0.0.1:9900/</div>
+    <div class="sub">验证时间：2026-06-17；公网地址：http://121.40.90.107/；本地地址：http://127.0.0.1:9900/</div>
 
     <section class="grid">
       <div class="card">
@@ -100,7 +100,7 @@
       <div class="card">
         <span class="ok">通过</span>
         <h2>比赛接口</h2>
-        <p>接口：<code>POST /chat</code></p>
+        <p>接口：<code>POST http://121.40.90.107/chat</code></p>
         <ul>
           <li>返回：<code>code = 0</code>，<code>msg = success</code></li>
           <li>支持：文本问题、图片数组、session_id</li>
@@ -118,7 +118,7 @@
       <div class="card wide">
         <span class="ok">通过</span>
         <h2>结论</h2>
-        <p>项目已完成比赛演示所需闭环：启动服务、投喂知识库、生成向量、Milvus 检索、Agent 调用工具、DashScope 生成答案、接口鉴权和前端问答展示。</p>
+        <p>项目已完成比赛演示所需闭环：云端访问、启动服务、投喂知识库、生成向量、Milvus 检索、Agent 调用工具、DashScope 生成答案、接口鉴权、前端问答展示、引用来源展示和知识库管理。</p>
       </div>
     </section>
   </main>
