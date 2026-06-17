@@ -19,6 +19,7 @@ contest-deliverables/paper-work/
 *.iml
 .DS_Store
 Thumbs.db
+~$*
 
 # Secrets and environment files
 .env
