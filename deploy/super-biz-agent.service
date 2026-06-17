@@ -1,0 +1,17 @@
+[Unit]
+Description=SuperBizAgent Java Service
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/SuperBizAgent-Java
+EnvironmentFile=/etc/super-biz-agent.env
+ExecStart=/bin/bash -lc 'java $JAVA_OPTS -jar target/super-biz-agent-1.0-SNAPSHOT.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE:-local} --server.address=127.0.0.1 --server.port=9900'
+Restart=always
+RestartSec=10
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

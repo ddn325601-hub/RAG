@@ -1,0 +1,9 @@
+id,category,question,expected_knowledge,expected_keywords
+T001,FAQ,"客户支付成功但订单页面仍显示待支付，客服应该怎么处理？","faq_customer_support.md;payment_order_runbook.md","不要再次支付;支付流水号;payment_callback;P1工单;补单或退款"
+T002,售后,"什么情况下需要把客服问题升级成技术工单？","faq_customer_support.md;after_sales_policy.md","5xx;超时;支付成功未出单;连续失败;企业客户"
+T003,运维告警,"ServiceUnavailable 告警出现后第一步应该排查什么？","ops_alert_playbook.md","健康检查;5xx;实例;数据库;缓存;消息队列;第三方API"
+T004,日志查询,"排查订单创建失败时应该搜索哪些日志字段？","logs_metrics_guide.md;payment_order_runbook.md","userId;create_order_failed;transaction_rollback;stock_lock_timeout;paymentNo"
+T005,图片工单,"客户上传支付截图时智能体应该优先提取哪些信息？","image_ticket_triage.md","支付渠道;金额;支付时间;支付流水号;订单号;支付状态"
+T006,产品能力,"这个智能体为什么算是客服智能体？","product_support_overview.md","多轮对话;RAG;工具调用;多模态理解;幻觉抑制"
+T007,SLA,"P0 和 P1 工单的响应时间分别是多少？","after_sales_policy.md","P0;5分钟;P1;15分钟"
+T008,慢响应,"SlowResponse 告警常见原因和处理步骤是什么？","ops_alert_playbook.md;logs_metrics_guide.md","P95;2秒;慢查询;外部接口超时;traceId;订单表索引"

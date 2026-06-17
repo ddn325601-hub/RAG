@@ -1,0 +1,20 @@
+spring:
+  ai:
+    mcp:
+      client:
+        enabled: false
+
+prometheus:
+  mock-enabled: true
+
+cls:
+  mock-enabled: true
+
+contest:
+  api-token: ${CONTEST_API_TOKEN:${KAFU_API_TOKEN:change-me-contest-token}}
+  max-history-pairs: 6
+  vision:
+    model: qwen3.7-plus
+    endpoint: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+    max-images: 3
+    max-image-bytes: 5242880

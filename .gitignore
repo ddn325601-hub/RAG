@@ -1,24 +1,35 @@
-# Compiled class file
+# Build outputs
+target/
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
-*.nar
-*.ear
-*.zip
 *.tar.gz
-*.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# Runtime data
+uploads/
+volumes/
+logs/
+*.log
+/contest-materials/runtime-output/
+
+# Local IDE and OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Secrets and environment files
+.env
+*.env
+/etc/super-biz-agent.env
+super-biz-agent.env
+application-secret.yml
+
+# Personal study/material files intentionally excluded
+AI项目学习与操作指南.md
+比赛接口说明.md
+课程讲义/
+学习笔记/
+热门面试题/
+面试题/

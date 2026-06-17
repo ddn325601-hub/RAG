@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>智能 OnCall Agent 验证摘要</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: #f5f7fb;
+      color: #172033;
+    }
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 36px 28px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+    .sub {
+      color: #5a667a;
+      margin-bottom: 28px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #dde4f0;
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 8px 20px rgba(31, 42, 68, .06);
+    }
+    .ok {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #e8f7ef;
+      color: #137a3a;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    code {
+      background: #eef2f7;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    pre {
+      white-space: pre-wrap;
+      background: #111827;
+      color: #d1fae5;
+      border-radius: 8px;
+      padding: 14px;
+      overflow: auto;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .wide {
+      grid-column: 1 / -1;
+    }
+    ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>智能 OnCall Agent 验证摘要</h1>
+    <div class="sub">验证时间：2026-06-17；运行地址：http://127.0.0.1:9900/</div>
+
+    <section class="grid">
+      <div class="card">
+        <span class="ok">通过</span>
+        <h2>Milvus 向量库</h2>
+        <p>检查接口：<code>GET /milvus/health</code></p>
+        <pre>{
+  "collections": ["biz"],
+  "message": "ok"
+}</pre>
+      </div>
+
+      <div class="card">
+        <span class="ok">通过</span>
+        <h2>RAG 召回</h2>
+        <p>问题：支付成功但订单仍待支付 payment_callback</p>
+        <ul>
+          <li>命中：<code>payment_order_runbook.md</code></li>
+          <li>内容：支付成功但订单状态仍显示待支付，默认 P1</li>
+          <li>命中：<code>payment_callback</code>、<code>mq_lag</code>、<code>consumer_error_rate</code></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="ok">通过</span>
+        <h2>比赛接口</h2>
+        <p>接口：<code>POST /chat</code></p>
+        <ul>
+          <li>返回：<code>code = 0</code>，<code>msg = success</code></li>
+          <li>支持：文本问题、图片数组、session_id</li>
+          <li>回答引用：<code>image_ticket_triage.md</code></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="ok">通过</span>
+        <h2>鉴权校验</h2>
+        <p>未携带 Token 调用 <code>/chat</code>。</p>
+        <pre>HTTP 401 Unauthorized</pre>
+      </div>
+
+      <div class="card wide">
+        <span class="ok">通过</span>
+        <h2>结论</h2>
+        <p>项目已完成比赛演示所需闭环：启动服务、投喂知识库、生成向量、Milvus 检索、Agent 调用工具、DashScope 生成答案、接口鉴权和前端问答展示。</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
