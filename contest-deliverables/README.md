@@ -25,6 +25,7 @@
 - `09-最终提交清单.md`：最终提交范围、排除项、验证命令和提交建议。
 - `10-演示视频录制脚本.md`：3 到 5 分钟演示视频的画面顺序和旁白稿。
 - `智能OnCallAgent-答辩演示.pptx`：可编辑答辩演示 PPT。
+- `智能OnCallAgent-技术论文.docx`：按研电赛技术论文格式要求整理的技术论文附件。
 - `screenshots/`：项目运行截图。
 - `api-examples/`：可直接执行的接口测试脚本。
 
@@ -47,6 +48,7 @@
 - 参赛材料入口：`contest-deliverables/README.md`
 - 最终提交清单：`contest-deliverables/09-最终提交清单.md`
 - 答辩演示 PPT：`contest-deliverables/智能OnCallAgent-答辩演示.pptx`
+- 技术论文附件：`contest-deliverables/智能OnCallAgent-技术论文.docx`
 - 演示视频脚本：`contest-deliverables/10-演示视频录制脚本.md`
 
 公开仓库中不包含真实 DashScope API Key、接口 Token、服务器私钥、个人学习资料、编译产物或运行数据。评审需要调用 `/chat` 时，可单独提供临时 `CONTEST_API_TOKEN`。
