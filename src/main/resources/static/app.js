@@ -15,6 +15,7 @@ class SuperBizAgentApp {
         this.bindEvents();
         this.updateUI();
         this.initMarkdown();
+        this.restoreActiveChat();
         this.checkAndSetCentered();
         this.renderChatHistory();
     }
@@ -99,7 +100,7 @@ class SuperBizAgentApp {
         // 侧边栏元素
         this.sidebar = document.querySelector('.sidebar');
         this.chatNavBtn = document.getElementById('chatNavBtn');
-        this.newChatBtn = this.chatNavBtn;
+        this.newChatBtn = document.getElementById('newChatBtn');
         this.aiOpsSidebarBtn = document.getElementById('aiOpsSidebarBtn');
         this.knowledgeBaseBtn = document.getElementById('knowledgeBaseBtn');
         this.authDebugBtn = document.getElementById('authDebugBtn');
@@ -147,9 +148,17 @@ class SuperBizAgentApp {
 
     // 绑定事件监听器
     bindEvents() {
+        // 返回智能问答页
+        if (this.chatNavBtn) {
+            this.chatNavBtn.addEventListener('click', () => this.openChatPanel());
+        }
+
         // 新建对话
         if (this.newChatBtn) {
-            this.newChatBtn.addEventListener('click', () => this.newChat());
+            this.newChatBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.newChat();
+            });
         }
         
         // AI Ops按钮
@@ -337,6 +346,7 @@ class SuperBizAgentApp {
         
         // 生成新的会话ID
         this.sessionId = this.generateSessionId();
+        this.saveActiveChatId('');
         
         // 重置模式为快速
         this.currentMode = 'quick';
@@ -352,6 +362,13 @@ class SuperBizAgentApp {
         
         // 更新历史对话列表
         this.renderChatHistory();
+    }
+
+    openChatPanel() {
+        this.closeKnowledgePanel();
+        this.closeAuthPanel();
+        this.setActiveNav(this.chatNavBtn);
+        this.checkAndSetCentered();
     }
     
     // 保存当前对话到历史记录（新建）
@@ -392,6 +409,7 @@ class SuperBizAgentApp {
         
         // 保存到localStorage
         this.saveChatHistories();
+        this.saveActiveChatId(this.sessionId);
     }
     
     // 更新当前对话的历史记录
@@ -423,6 +441,7 @@ class SuperBizAgentApp {
         
         // 保存到localStorage
         this.saveChatHistories();
+        this.saveActiveChatId(this.sessionId);
     }
     
     // 加载历史对话列表
@@ -444,6 +463,45 @@ class SuperBizAgentApp {
             console.error('保存历史对话失败:', e);
         }
     }
+
+    saveActiveChatId(historyId) {
+        try {
+            if (historyId) {
+                localStorage.setItem('activeChatHistoryId', historyId);
+            } else {
+                localStorage.removeItem('activeChatHistoryId');
+            }
+        } catch (e) {
+            console.error('保存当前对话ID失败:', e);
+        }
+    }
+
+    restoreActiveChat() {
+        try {
+            const activeHistoryId = localStorage.getItem('activeChatHistoryId');
+            if (!activeHistoryId || !this.chatHistories.length) {
+                return;
+            }
+
+            const history = this.chatHistories.find(h => h.id === activeHistoryId);
+            if (!history || !Array.isArray(history.messages) || history.messages.length === 0) {
+                return;
+            }
+
+            this.sessionId = history.id;
+            this.currentChatHistory = [...history.messages];
+            this.isCurrentChatFromHistory = true;
+
+            if (this.chatMessages) {
+                this.chatMessages.innerHTML = '';
+                history.messages.forEach(msg => {
+                    this.addMessage(msg.type, msg.content, false, false, msg.references || []);
+                });
+            }
+        } catch (e) {
+            console.error('恢复当前对话失败:', e);
+        }
+    }
     
     // 渲染历史对话列表
     renderChatHistory() {
@@ -454,17 +512,23 @@ class SuperBizAgentApp {
         this.chatHistoryList.innerHTML = '';
         
         if (this.chatHistories.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'history-empty';
+            empty.textContent = '暂无历史对话';
+            this.chatHistoryList.appendChild(empty);
             return;
         }
         
         this.chatHistories.forEach((history, index) => {
             const historyItem = document.createElement('div');
-            historyItem.className = 'history-item';
+            historyItem.className = `history-item${history.id === this.sessionId ? ' active' : ''}`;
             historyItem.dataset.historyId = history.id;
+            const updatedAt = history.updatedAt ? new Date(history.updatedAt).toLocaleString() : '';
             
             historyItem.innerHTML = `
                 <div class="history-item-content">
                     <span class="history-item-title">${this.escapeHtml(history.title)}</span>
+                    <span class="history-item-time">${this.escapeHtml(updatedAt)}</span>
                 </div>
                 <button class="history-item-delete" data-history-id="${history.id}" title="删除">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -523,6 +587,7 @@ class SuperBizAgentApp {
         }
         
         // 更新UI
+        this.saveActiveChatId(this.sessionId);
         this.checkAndSetCentered();
         this.renderChatHistory();
     }
@@ -540,6 +605,7 @@ class SuperBizAgentApp {
                 this.chatMessages.innerHTML = '';
             }
             this.sessionId = this.generateSessionId();
+            this.saveActiveChatId('');
             this.checkAndSetCentered();
         }
     }
@@ -888,6 +954,7 @@ class SuperBizAgentApp {
                 references: references || [],
                 timestamp: new Date().toISOString()
             });
+            this.updateCurrentChatHistory();
         }
         
         const messageDiv = document.createElement('div');
@@ -1042,11 +1109,8 @@ class SuperBizAgentApp {
                 content: fullResponse,
                 timestamp: new Date().toISOString()
             });
-            // 如果当前对话是从历史记录加载的，更新历史记录
-            if (this.isCurrentChatFromHistory) {
-                this.updateCurrentChatHistory();
-                this.renderChatHistory();
-            }
+            this.updateCurrentChatHistory();
+            this.renderChatHistory();
         }
     }
 
