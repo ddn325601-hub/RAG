@@ -4,6 +4,7 @@ target/
 *.jar
 *.war
 *.tar.gz
+__pycache__/
 
 # Runtime data
 uploads/

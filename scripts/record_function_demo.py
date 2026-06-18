@@ -224,6 +224,87 @@ def type_value(cdp, recorder, selector, value, seconds=8):
             recorder.frame()
 
 
+def wait_for_condition(cdp, predicate_js, timeout):
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            if cdp.eval(predicate_js, timeout=5):
+                return True
+        except Exception:
+            pass
+        time.sleep(0.5)
+    return False
+
+
+def scroll_latest_answer_from_top(cdp, recorder):
+    metrics = cdp.eval("""
+(() => {
+  const container =
+    document.querySelector('[data-testid="chat-scroll-container"]') ||
+    document.querySelector('#chatMessages');
+  const messages = Array.from(document.querySelectorAll('[data-testid="assistant-message"]'))
+    .filter(el => !el.classList.contains('streaming') && el.querySelector('.source-card'));
+  const answer = messages[messages.length - 1];
+  if (!container || !answer) {
+    return null;
+  }
+  const top = Math.max(0, answer.offsetTop - 12);
+  container.scrollTop = top;
+  const target = Math.min(
+    container.scrollHeight - container.clientHeight,
+    answer.offsetTop + answer.offsetHeight - container.clientHeight + 48
+  );
+  return {
+    top,
+    target: Math.max(top, target),
+    height: answer.offsetHeight,
+    containerHeight: container.clientHeight
+  };
+})()
+""", timeout=10)
+    if not metrics:
+        recorder.seconds(8)
+        return
+
+    # Let the audience read the beginning before the downward pass starts.
+    recorder.seconds(8)
+
+    top = int(metrics["top"])
+    target = int(metrics["target"])
+    current = top
+    step = 60
+    source_pause_done = False
+    while current < target:
+        current = min(target, current + step)
+        cdp.eval(f"""
+(() => {{
+  const container =
+    document.querySelector('[data-testid="chat-scroll-container"]') ||
+    document.querySelector('#chatMessages');
+  if (container) container.scrollTop = {current};
+  return true;
+}})()
+""", timeout=5)
+        recorder.frame()
+        source_visible = cdp.eval("""
+(() => {
+  const container =
+    document.querySelector('[data-testid="chat-scroll-container"]') ||
+    document.querySelector('#chatMessages');
+  const source = document.querySelector('.source-references');
+  if (!container || !source) return false;
+  const c = container.getBoundingClientRect();
+  const s = source.getBoundingClientRect();
+  return s.top >= c.top && s.top <= c.bottom;
+})()
+""", timeout=5)
+        if source_visible and not source_pause_done:
+            recorder.seconds(1)
+            source_pause_done = True
+
+    recorder.seconds(3)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", default="http://127.0.0.1:9910/")
@@ -274,21 +355,21 @@ def main():
         cdp.eval("document.body.style.cursor = 'default'; true")
 
         with Recorder(cdp, args.output) as recorder:
-            recorder.seconds(8)
+            recorder.seconds(20)
 
             # 1. Home and product structure.
             cdp.eval(js_click("#knowledgeBaseBtn"))
-            recorder.seconds(8)
+            recorder.seconds(14)
             cdp.eval(js_click("#chatNavBtn"))
-            recorder.seconds(6)
+            recorder.seconds(10)
             cdp.eval(js_click("#authDebugBtn"))
-            recorder.seconds(7)
+            recorder.seconds(12)
             cdp.eval(js_click("#chatNavBtn"))
-            recorder.seconds(7)
+            recorder.seconds(12)
 
             # 2. Knowledge base management and upload.
             cdp.eval(js_click("#knowledgeBaseBtn"))
-            recorder.until("document.querySelectorAll('.kb-file-item').length >= 7", 25, 12)
+            recorder.until("document.querySelectorAll('.kb-file-item').length >= 7", 25, 24)
             cdp.eval(f"""
 (async () => {{
   const app = window.superBizApp;
@@ -298,16 +379,17 @@ def main():
   return true;
 }})()
 """, timeout=90)
-            recorder.until("document.querySelectorAll('.kb-file-item').length >= 7 && !document.querySelector('.upload-overlay.show')", 40, 16)
+            recorder.until("document.querySelectorAll('.kb-file-item').length >= 7 && !document.querySelector('.upload-overlay.show')", 40, 28)
 
             # 3. RAG question, answer, and TopK=3 references.
             cdp.eval(js_click("#chatNavBtn"))
             recorder.seconds(5)
             type_value(cdp, recorder, "#messageInput", "支付订单超时如何排查？", seconds=9)
             cdp.eval(js_click("#sendButton"))
-            recorder.until("document.querySelectorAll('.source-card').length >= 3", 150, 22)
-            cdp.eval("document.querySelector('#chatMessages')?.scrollTo({top: document.querySelector('#chatMessages').scrollHeight, behavior: 'smooth'}); true")
-            recorder.seconds(14)
+            recorder.seconds(3)
+            if not wait_for_condition(cdp, "document.querySelectorAll('[data-testid=\"assistant-message\"] .source-card').length >= 3", 150):
+                raise TimeoutError("RAG answer did not render three source cards")
+            scroll_latest_answer_from_top(cdp, recorder)
 
             # 4. Token auth debug with real /chat responses.
             cdp.eval(js_click("#authDebugBtn"))

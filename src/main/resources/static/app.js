@@ -892,6 +892,8 @@ class SuperBizAgentApp {
         
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type}${isStreaming ? ' streaming' : ''}`;
+        messageDiv.dataset.testid = type === 'assistant' ? 'assistant-message' : 'user-message';
+        messageDiv.dataset.messageRole = type;
 
         // 如果是assistant消息，添加头像图标
         if (type === 'assistant') {
@@ -948,6 +950,8 @@ class SuperBizAgentApp {
     addLoadingMessage(content) {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message assistant';
+        messageDiv.dataset.testid = 'assistant-message';
+        messageDiv.dataset.messageRole = 'assistant';
 
         // 添加头像图标
         const messageAvatar = document.createElement('div');
