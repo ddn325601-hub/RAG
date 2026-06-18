@@ -24,6 +24,8 @@
 - `08-云部署补充说明.md`：ECS 部署结构、服务管理、提交注意事项。
 - `09-最终提交清单.md`：最终提交范围、排除项、验证命令和提交建议。
 - `10-演示视频录制脚本.md`：功能演示视频的录制流程、自动化脚本和验收指标。
+- `11-完整视频剪辑脚本.md`：PPT 截图、网页录屏、旁白字幕的完整剪映剪辑台本。
+- `subtitles/`：完整演示视频的 SRT、LRC、ASS 字幕文件。
 - `OnCallAgent_Function_Demo.mp4`：已生成的 1080p 产品功能演示视频，覆盖首页、知识库、资料投喂、RAG 问答、引用来源和接口鉴权。
 - `智能OnCallAgent-答辩演示.pptx`：可编辑答辩演示 PPT。
 - `智能OnCallAgent-技术论文.docx`：按研电赛技术论文格式要求整理的技术论文附件。
@@ -55,6 +57,8 @@
 - 门型展架：`contest-deliverables/智能OnCallAgent-门型展架.jpg`
 - 门型展架可编辑源文件：`contest-deliverables/智能OnCallAgent-门型展架-可编辑版.pptx`
 - 演示视频脚本：`contest-deliverables/10-演示视频录制脚本.md`
+- 完整剪辑台本：`contest-deliverables/11-完整视频剪辑脚本.md`
+- 字幕文件：`contest-deliverables/subtitles/`
 - 产品功能演示视频：`contest-deliverables/OnCallAgent_Function_Demo.mp4`
 
 公开仓库中不包含真实 DashScope API Key、接口 Token、服务器私钥、个人学习资料、编译产物或运行数据。评审需要调用 `/chat` 时，可单独提供临时 `CONTEST_API_TOKEN`。

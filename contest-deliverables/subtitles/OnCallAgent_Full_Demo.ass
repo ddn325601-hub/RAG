@@ -1,0 +1,42 @@
+[Script Info]
+Title: OnCallAgent Full Demo
+ScriptType: v4.00+
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+YCbCr Matrix: TV.709
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Microsoft YaHei,42,&H00FFFFFF,&H000000FF,&H8A000000,&H66000000,0,0,0,0,100,100,0,0,1,3,1,2,120,120,62,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:07.00,Default,,0,0,0,,大家好，我们的作品是智能 OnCall Agent。
+Dialogue: 0,0:00:07.00,0:00:15.00,Default,,0,0,0,,它面向客服、售后和运维场景，目标是把分散资料转化为智能问答能力。
+Dialogue: 0,0:00:15.00,0:00:24.00,Default,,0,0,0,,一线人员经常需要同时查 FAQ、产品说明、售后政策、故障手册和告警流程。
+Dialogue: 0,0:00:24.00,0:00:32.00,Default,,0,0,0,,资料分散会导致响应慢，经验依赖强，也让回答难以复核。
+Dialogue: 0,0:00:32.00,0:00:41.00,Default,,0,0,0,,本项目解决三个问题：资料统一检索、模型回答可追溯、接口可被外部系统调用。
+Dialogue: 0,0:00:41.00,0:00:52.00,Default,,0,0,0,,前端负责聊天、知识库管理、引用来源和接口调试，后端使用 Spring Boot 提供核心服务。
+Dialogue: 0,0:00:52.00,0:01:04.00,Default,,0,0,0,,文档上传后会被分片、向量化，并写入 Milvus，问答时先召回证据，再由大模型组织答案。
+Dialogue: 0,0:01:04.00,0:01:18.00,Default,,0,0,0,,系统接入 DashScope 模型，并通过 Agent 流程组合知识库检索、日志指标思路和标准接口能力。
+Dialogue: 0,0:01:18.00,0:01:30.00,Default,,0,0,0,,项目特色是知识增强、来源可追溯、接口可鉴权，并且已经完成本地运行和云端部署。
+Dialogue: 0,0:01:30.00,0:01:38.00,Default,,0,0,0,,接下来进入系统页面，展示真实产品交互。
+Dialogue: 0,0:01:38.00,0:01:48.00,Default,,0,0,0,,左侧可以看到智能问答、知识库管理和接口调试三个入口。
+Dialogue: 0,0:01:48.00,0:01:58.00,Default,,0,0,0,,首页保留真实产品页面，没有临时说明卡片，适合直接作为功能演示素材。
+Dialogue: 0,0:01:58.00,0:02:10.00,Default,,0,0,0,,在知识库管理页面，可以看到系统已经投喂了 7 份客服、售后和运维资料。
+Dialogue: 0,0:02:10.00,0:02:22.00,Default,,0,0,0,,资料包括支付订单排查手册、售后政策、运维告警流程、日志指标说明和客服 FAQ。
+Dialogue: 0,0:02:22.00,0:02:34.00,Default,,0,0,0,,上传入口支持继续投喂 Markdown 或 TXT 文件，上传后会进入解析、切片、向量化和入库流程。
+Dialogue: 0,0:02:34.00,0:02:45.00,Default,,0,0,0,,下面演示典型问题：支付订单超时如何排查？
+Dialogue: 0,0:02:45.00,0:02:56.00,Default,,0,0,0,,这个问题涉及支付回调、订单服务、消息队列、库存、风控和数据库等多个链路。
+Dialogue: 0,0:02:56.00,0:03:08.00,Default,,0,0,0,,回答生成完成后，页面从本次回答顶部开始展示，而不是直接跳到结论。
+Dialogue: 0,0:03:08.00,0:03:20.00,Default,,0,0,0,,可以看到系统先给出适用场景和标准排查步骤，帮助一线人员建立处理顺序。
+Dialogue: 0,0:03:20.00,0:03:33.00,Default,,0,0,0,,继续向下，回答会展示支付结果确认、应用日志搜索、订单服务日志和消息中间件健康检查。
+Dialogue: 0,0:03:33.00,0:03:45.00,Default,,0,0,0,,处理建议部分给出冻结后续支付、通知技术支持、补单或退款、记录时间线等操作。
+Dialogue: 0,0:03:45.00,0:03:58.00,Default,,0,0,0,,回答末尾展示引用来源，当前 TopK 为 3，每条来源都有文档名称、片段摘要和 score。
+Dialogue: 0,0:03:58.00,0:04:08.00,Default,,0,0,0,,这说明答案不是凭空生成，而是可以追溯到知识库证据。
+Dialogue: 0,0:04:08.00,0:04:20.00,Default,,0,0,0,,最后展示接口调试。无 Token 调用 `/chat` 会返回 401。
+Dialogue: 0,0:04:20.00,0:04:30.00,Default,,0,0,0,,带正确 Token 调用会返回 200 和正常问答结果，说明接口具备基本安全控制。
+Dialogue: 0,0:04:30.00,0:04:40.00,Default,,0,0,0,,总体来看，项目已经完成真实模型接入、RAG 知识库、引用来源展示和接口鉴权。
+Dialogue: 0,0:04:40.00,0:04:50.00,Default,,0,0,0,,后续可以继续接入真实工单、监控平台和自动化评测集，扩展为企业级智能 OnCall 助手。
