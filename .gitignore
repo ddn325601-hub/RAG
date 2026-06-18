@@ -12,6 +12,8 @@ logs/
 *.log
 /contest-materials/runtime-output/
 contest-deliverables/paper-work/
+contest-deliverables/video-check-frames/
+openh264-*.dll
 
 # Local IDE and OS files
 .idea/

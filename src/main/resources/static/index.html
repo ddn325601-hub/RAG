@@ -20,19 +20,27 @@
             </div>
             
             <div class="sidebar-content">
-                <button class="new-chat-btn" id="newChatBtn">
+                <button class="new-chat-btn nav-btn active" id="chatNavBtn">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
                     </svg>
-                    <span>新建对话</span>
+                    <span>智能问答</span>
                 </button>
                 
-                <button class="sidebar-btn" id="knowledgeBaseBtn">
+                <button class="sidebar-btn nav-btn" id="knowledgeBaseBtn">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20V22H6.5A2.5 2.5 0 0 1 4 19.5V4.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
                     </svg>
-                    <span>知识库</span>
+                    <span>知识库管理</span>
+                </button>
+
+                <button class="sidebar-btn nav-btn" id="authDebugBtn">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3L4 6V11C4 16.2 7.4 20.7 12 22C16.6 20.7 20 16.2 20 11V6L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M9.5 12.5L11.3 14.3L15 10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>接口调试</span>
                 </button>
 
                 <div class="chat-history-section">
@@ -156,6 +164,57 @@
         <div class="kb-file-list" id="kbFileList"></div>
     </section>
 
-    <script src="app.js?v=20260617-kb-sources"></script>
+    <div class="auth-drawer-overlay" id="authDrawerOverlay"></div>
+    <section class="auth-drawer" id="authDrawer" aria-label="接口调试">
+        <div class="auth-drawer-header">
+            <div>
+                <h2>接口调试</h2>
+                <p>调用标准 /chat 接口，查看 Token 鉴权和响应结果。</p>
+            </div>
+            <button class="kb-icon-btn" id="authCloseBtn" title="关闭">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="auth-debug-content">
+            <div class="auth-form-grid">
+                <label>
+                    <span>接口地址</span>
+                    <input id="authEndpointInput" value="/chat" readonly>
+                </label>
+                <label>
+                    <span>Token</span>
+                    <input id="authTokenInput" type="password" placeholder="Bearer Token">
+                </label>
+            </div>
+            <label class="auth-question-label">
+                <span>请求问题</span>
+                <textarea id="authQuestionInput" rows="3">支付订单超时如何排查？</textarea>
+            </label>
+            <div class="auth-actions">
+                <button class="kb-secondary-btn" id="authRunWithoutTokenBtn">无 Token 请求</button>
+                <button class="kb-primary-btn" id="authRunWithTokenBtn">带 Token 请求</button>
+            </div>
+            <div class="auth-result-grid">
+                <section class="auth-result-card" id="authNoTokenCard">
+                    <div class="auth-result-title">
+                        <span>无 Token</span>
+                        <strong id="authNoTokenStatus">待请求</strong>
+                    </div>
+                    <pre id="authNoTokenResponse">{}</pre>
+                </section>
+                <section class="auth-result-card" id="authWithTokenCard">
+                    <div class="auth-result-title">
+                        <span>带 Token</span>
+                        <strong id="authWithTokenStatus">待请求</strong>
+                    </div>
+                    <pre id="authWithTokenResponse">{}</pre>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <script src="app.js?v=20260618-product-demo"></script>
 </body>
 </html>

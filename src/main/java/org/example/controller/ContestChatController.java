@@ -3,11 +3,14 @@ package org.example.controller;
 import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
 import com.alibaba.cloud.ai.graph.agent.ReactAgent;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.dto.contest.ContestChatRequest;
 import org.example.dto.contest.ContestChatResponse;
 import org.example.service.ChatService;
 import org.example.service.ContestSessionService;
 import org.example.service.ContestVisionService;
+import org.example.service.VectorSearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,24 +33,31 @@ public class ContestChatController {
     private final ChatService chatService;
     private final ContestSessionService sessionService;
     private final ContestVisionService visionService;
+    private final VectorSearchService vectorSearchService;
+    private final ObjectMapper objectMapper;
 
     @Value("${contest.api-token:change-me-contest-token}")
     private String contestApiToken;
 
     public ContestChatController(ChatService chatService,
                                  ContestSessionService sessionService,
-                                 ContestVisionService visionService) {
+                                 ContestVisionService visionService,
+                                 VectorSearchService vectorSearchService,
+                                 ObjectMapper objectMapper) {
         this.chatService = chatService;
         this.sessionService = sessionService;
         this.visionService = visionService;
+        this.vectorSearchService = vectorSearchService;
+        this.objectMapper = objectMapper;
     }
 
     @PostMapping("/chat")
     public ResponseEntity<ContestChatResponse<ContestChatResponse.ChatData>> chat(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @RequestHeader(value = "X-API-Token", required = false) String apiToken,
             @RequestBody ContestChatRequest request) {
         try {
-            if (!isAuthorized(authorization)) {
+            if (!isAuthorized(authorization, apiToken)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(ContestChatResponse.error(401, "unauthorized"));
             }
@@ -65,12 +75,14 @@ public class ContestChatController {
             DashScopeChatModel chatModel = chatService.createStandardChatModel(dashScopeApi);
             ReactAgent agent = chatService.createReactAgent(chatModel, buildContestSystemPrompt(session.snapshot()));
             String answer = chatService.executeChat(agent, userQuestion);
+            List<ContestChatResponse.SourceData> sources = buildSources(request.getQuestion());
 
             session.addExchange(request.getQuestion(), answer);
             ContestChatResponse.ChatData data = new ContestChatResponse.ChatData(
                     answer,
                     session.getSessionId(),
-                    System.currentTimeMillis()
+                    System.currentTimeMillis(),
+                    sources
             );
             return ResponseEntity.ok(ContestChatResponse.success(data));
         } catch (IllegalArgumentException e) {
@@ -83,11 +95,60 @@ public class ContestChatController {
         }
     }
 
-    private boolean isAuthorized(String authorization) {
+    private boolean isAuthorized(String authorization, String apiToken) {
         if (contestApiToken == null || contestApiToken.isBlank()) {
             return true;
         }
-        return authorization != null && authorization.equals("Bearer " + contestApiToken);
+        return (authorization != null && authorization.equals("Bearer " + contestApiToken))
+                || (apiToken != null && apiToken.equals(contestApiToken));
+    }
+
+    private List<ContestChatResponse.SourceData> buildSources(String question) {
+        try {
+            List<VectorSearchService.SearchResult> results =
+                    vectorSearchService.searchSimilarDocuments(question, 3);
+            return java.util.stream.IntStream.range(0, results.size())
+                    .mapToObj(index -> {
+                        VectorSearchService.SearchResult result = results.get(index);
+                        SourceMetadata metadata = parseSourceMetadata(result.getMetadata(), index + 1);
+                        return new ContestChatResponse.SourceData(
+                                index + 1,
+                                metadata.title(),
+                                metadata.fileName(),
+                                result.getContent(),
+                                result.getScore()
+                        );
+                    })
+                    .toList();
+        } catch (Exception e) {
+            logger.warn("failed to build /chat sources", e);
+            return List.of();
+        }
+    }
+
+    private SourceMetadata parseSourceMetadata(String metadata, int rank) {
+        if (metadata == null || metadata.isBlank()) {
+            return new SourceMetadata("片段 " + rank, "internal-docs");
+        }
+        try {
+            JsonNode node = objectMapper.readTree(metadata);
+            String title = textOrDefault(node, "title", "片段 " + rank);
+            String fileName = textOrDefault(node, "_file_name", textOrDefault(node, "fileName", "internal-docs"));
+            return new SourceMetadata(title, fileName);
+        } catch (Exception e) {
+            return new SourceMetadata("片段 " + rank, "internal-docs");
+        }
+    }
+
+    private String textOrDefault(JsonNode node, String field, String fallback) {
+        JsonNode value = node.get(field);
+        if (value == null || value.asText().isBlank()) {
+            return fallback;
+        }
+        return value.asText();
+    }
+
+    private record SourceMetadata(String title, String fileName) {
     }
 
     private String buildAgentQuestion(String question, List<String> images) {

@@ -98,9 +98,11 @@ class SuperBizAgentApp {
     initializeElements() {
         // 侧边栏元素
         this.sidebar = document.querySelector('.sidebar');
-        this.newChatBtn = document.getElementById('newChatBtn');
+        this.chatNavBtn = document.getElementById('chatNavBtn');
+        this.newChatBtn = this.chatNavBtn;
         this.aiOpsSidebarBtn = document.getElementById('aiOpsSidebarBtn');
         this.knowledgeBaseBtn = document.getElementById('knowledgeBaseBtn');
+        this.authDebugBtn = document.getElementById('authDebugBtn');
         this.kbDrawer = document.getElementById('kbDrawer');
         this.kbDrawerOverlay = document.getElementById('kbDrawerOverlay');
         this.kbCloseBtn = document.getElementById('kbCloseBtn');
@@ -108,6 +110,18 @@ class SuperBizAgentApp {
         this.kbRefreshBtn = document.getElementById('kbRefreshBtn');
         this.kbStats = document.getElementById('kbStats');
         this.kbFileList = document.getElementById('kbFileList');
+        this.authDrawer = document.getElementById('authDrawer');
+        this.authDrawerOverlay = document.getElementById('authDrawerOverlay');
+        this.authCloseBtn = document.getElementById('authCloseBtn');
+        this.authEndpointInput = document.getElementById('authEndpointInput');
+        this.authTokenInput = document.getElementById('authTokenInput');
+        this.authQuestionInput = document.getElementById('authQuestionInput');
+        this.authRunWithoutTokenBtn = document.getElementById('authRunWithoutTokenBtn');
+        this.authRunWithTokenBtn = document.getElementById('authRunWithTokenBtn');
+        this.authNoTokenStatus = document.getElementById('authNoTokenStatus');
+        this.authWithTokenStatus = document.getElementById('authWithTokenStatus');
+        this.authNoTokenResponse = document.getElementById('authNoTokenResponse');
+        this.authWithTokenResponse = document.getElementById('authWithTokenResponse');
         
         // 输入区域元素
         this.messageInput = document.getElementById('messageInput');
@@ -147,12 +161,32 @@ class SuperBizAgentApp {
             this.knowledgeBaseBtn.addEventListener('click', () => this.openKnowledgePanel());
         }
 
+        if (this.authDebugBtn) {
+            this.authDebugBtn.addEventListener('click', () => this.openAuthPanel());
+        }
+
         if (this.kbCloseBtn) {
             this.kbCloseBtn.addEventListener('click', () => this.closeKnowledgePanel());
         }
 
         if (this.kbDrawerOverlay) {
             this.kbDrawerOverlay.addEventListener('click', () => this.closeKnowledgePanel());
+        }
+
+        if (this.authCloseBtn) {
+            this.authCloseBtn.addEventListener('click', () => this.closeAuthPanel());
+        }
+
+        if (this.authDrawerOverlay) {
+            this.authDrawerOverlay.addEventListener('click', () => this.closeAuthPanel());
+        }
+
+        if (this.authRunWithoutTokenBtn) {
+            this.authRunWithoutTokenBtn.addEventListener('click', () => this.runAuthRequest(false));
+        }
+
+        if (this.authRunWithTokenBtn) {
+            this.authRunWithTokenBtn.addEventListener('click', () => this.runAuthRequest(true));
         }
 
         if (this.kbRefreshBtn) {
@@ -265,6 +299,10 @@ class SuperBizAgentApp {
             this.showNotification('请等待当前对话完成后再新建对话', 'warning');
             return;
         }
+
+        this.closeKnowledgePanel();
+        this.closeAuthPanel();
+        this.setActiveNav(this.chatNavBtn);
         
         // 如果当前有对话内容，且不是从历史记录加载的，才保存为新的历史对话
         // 如果是从历史记录加载的，只需要更新该历史记录
@@ -1218,6 +1256,8 @@ class SuperBizAgentApp {
 
     async openKnowledgePanel() {
         this.isKnowledgePanelOpen = true;
+        this.closeAuthPanel();
+        this.setActiveNav(this.knowledgeBaseBtn);
         if (this.kbDrawer) {
             this.kbDrawer.classList.add('open');
         }
@@ -1235,6 +1275,112 @@ class SuperBizAgentApp {
         if (this.kbDrawerOverlay) {
             this.kbDrawerOverlay.classList.remove('open');
         }
+    }
+
+    openAuthPanel() {
+        this.closeKnowledgePanel();
+        this.setActiveNav(this.authDebugBtn);
+        if (this.authDrawer) {
+            this.authDrawer.classList.add('open');
+        }
+        if (this.authDrawerOverlay) {
+            this.authDrawerOverlay.classList.add('open');
+        }
+        if (this.authTokenInput && !this.authTokenInput.value) {
+            this.authTokenInput.value = localStorage.getItem('contestDemoToken') || '';
+        }
+    }
+
+    closeAuthPanel() {
+        if (this.authDrawer) {
+            this.authDrawer.classList.remove('open');
+        }
+        if (this.authDrawerOverlay) {
+            this.authDrawerOverlay.classList.remove('open');
+        }
+    }
+
+    setActiveNav(activeButton) {
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+    }
+
+    async runAuthRequest(withToken) {
+        const statusEl = withToken ? this.authWithTokenStatus : this.authNoTokenStatus;
+        const responseEl = withToken ? this.authWithTokenResponse : this.authNoTokenResponse;
+        const token = this.authTokenInput ? this.authTokenInput.value.trim() : '';
+        const question = this.authQuestionInput && this.authQuestionInput.value.trim()
+                ? this.authQuestionInput.value.trim()
+                : '支付订单超时如何排查？';
+
+        if (withToken && !token) {
+            if (statusEl) statusEl.textContent = '缺少 Token';
+            if (responseEl) responseEl.textContent = JSON.stringify({ code: 401, msg: 'token required' }, null, 2);
+            return;
+        }
+
+        if (statusEl) statusEl.textContent = '请求中';
+        if (responseEl) {
+            responseEl.textContent = JSON.stringify({
+                method: 'POST',
+                url: '/chat',
+                headers: withToken ? { Authorization: 'Bearer sk-demo-******' } : {},
+                body: { question, session_id: 'ui-auth-debug' }
+            }, null, 2);
+        }
+
+        try {
+            const headers = { 'Content-Type': 'application/json' };
+            if (withToken) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+            const response = await fetch(`${window.location.origin}/chat`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    question,
+                    session_id: 'ui-auth-debug'
+                })
+            });
+            const text = await response.text();
+            let body;
+            try {
+                body = JSON.parse(text);
+            } catch (error) {
+                body = { raw: text };
+            }
+            if (statusEl) {
+                statusEl.textContent = `HTTP ${response.status}`;
+                statusEl.className = response.ok ? 'ok' : 'error';
+            }
+            if (responseEl) {
+                responseEl.textContent = JSON.stringify(this.sanitizeAuthResponse(body), null, 2);
+            }
+            if (withToken && token) {
+                localStorage.setItem('contestDemoToken', token);
+            }
+        } catch (error) {
+            if (statusEl) {
+                statusEl.textContent = '请求失败';
+                statusEl.className = 'error';
+            }
+            if (responseEl) {
+                responseEl.textContent = JSON.stringify({ error: error.message }, null, 2);
+            }
+        }
+    }
+
+    sanitizeAuthResponse(body) {
+        if (!body || !body.data) {
+            return body;
+        }
+        const cloned = JSON.parse(JSON.stringify(body));
+        if (cloned.data.answer && cloned.data.answer.length > 650) {
+            cloned.data.answer = `${cloned.data.answer.substring(0, 650)}...`;
+        }
+        return cloned;
     }
 
     async loadKnowledgeFiles() {
@@ -1284,7 +1430,10 @@ class SuperBizAgentApp {
             item.innerHTML = `
                 <div class="kb-file-icon">${this.escapeHtml((file.extension || 'md').toUpperCase())}</div>
                 <div class="kb-file-main">
-                    <div class="kb-file-name">${this.escapeHtml(file.fileName || '')}</div>
+                    <div class="kb-file-title-row">
+                        <div class="kb-file-name">${this.escapeHtml(file.fileName || '')}</div>
+                        <span class="kb-file-status">已入库</span>
+                    </div>
                     <div class="kb-file-meta">${this.formatFileSize(file.fileSize || 0)} · ${this.escapeHtml(time)}</div>
                     <div class="kb-file-path">${this.escapeHtml(file.filePath || '')}</div>
                 </div>

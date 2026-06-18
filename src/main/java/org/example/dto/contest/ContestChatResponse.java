@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class ContestChatResponse<T> {
@@ -39,10 +41,39 @@ public class ContestChatResponse<T> {
 
         private long timestamp;
 
+        private List<SourceData> sources;
+
         public ChatData(String answer, String sessionId, long timestamp) {
+            this(answer, sessionId, timestamp, List.of());
+        }
+
+        public ChatData(String answer, String sessionId, long timestamp, List<SourceData> sources) {
             this.answer = answer;
             this.sessionId = sessionId;
             this.timestamp = timestamp;
+            this.sources = sources;
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class SourceData {
+        private int rank;
+        private String title;
+        private String fileName;
+        private String content;
+        private String snippet;
+        private float score;
+
+        public SourceData(int rank, String title, String fileName, String content, float score) {
+            this.rank = rank;
+            this.title = title;
+            this.fileName = fileName;
+            this.content = content;
+            this.snippet = content == null || content.length() <= 180
+                    ? content
+                    : content.substring(0, 180);
+            this.score = score;
         }
     }
 }
